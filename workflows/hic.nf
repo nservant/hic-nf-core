@@ -121,6 +121,7 @@ include { TADS } from '../subworkflows/local/tads'
 //
 
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
+include { CAT_FASTQ } from '../modules/nf-core/modules/cat/fastq/main'
 include { FASTQC  } from '../modules/nf-core/modules/fastqc/main'
 //include { MULTIQC } from '../modules/nf-core/modules/multiqc/main'
 
@@ -153,8 +154,34 @@ workflow HIC {
   INPUT_CHECK (
     ch_input
   )
+  .reads
+  .map {
+    meta, fastq ->
+      meta.id = meta.id.split('_')[0..-2].join('_')
+      [ meta, fastq ] }
+    .groupTuple(by: [0])
+    .branch {
+      meta, fastq ->
+      single  : fastq.size() == 1
+      return [ meta, fastq.flatten() ]
+      multiple: fastq.size() > 1
+      return [ meta, fastq.flatten() ]
+    }
+    .set { ch_fastq }
+  // TODO
+  // ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
-  INPUT_CHECK.out.reads.view()
+  //
+  // MODULE: Concatenate FastQ files from same sample if required
+  //
+  CAT_FASTQ (
+    ch_fastq.multiple
+  )
+    .reads
+    .mix(ch_fastq.single)
+    .set { ch_cat_fastq }
+  // TODO
+  // ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first().ifEmpty(null))
 
   //
   // SUBWORKFLOW: Prepare genome annotation
@@ -169,7 +196,7 @@ workflow HIC {
   // MODULE: Run FastQC
   //
   FASTQC (
-    INPUT_CHECK.out.reads
+    ch_cat_fastq
   )
   ch_versions = ch_versions.mix(FASTQC.out.versions)
 
@@ -177,7 +204,7 @@ workflow HIC {
   // SUB-WORFLOW: HiC-Pro
   //
   HICPRO (
-    INPUT_CHECK.out.reads,
+    ch_cat_fastq
     PREPARE_GENOME.out.index,
     PREPARE_GENOME.out.res_frag,
     PREPARE_GENOME.out.chromosome_size,
