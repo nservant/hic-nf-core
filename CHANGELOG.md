@@ -3,11 +3,15 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v1.4.0dev
+## v2.1.0dev
+
+## v2.0.0 - 2023-01-12
 
 ### `Added`
 
 - DSL2 version of nf-core-hic pipeline
+- Add full test dataset (#80)
+- Replace local modules by the cooler nf-core module
 
 ### `Fixed`
 
