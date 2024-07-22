@@ -18,7 +18,7 @@ You will need to create a samplesheet with information about the samples you wou
 
 The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. Below is an example for the same sample sequenced across 3 lanes:
 
-```console
+```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2
 CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
 CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
@@ -29,7 +29,7 @@ CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
 
 The `nf-core-hic` pipeline is designed to work only with paired-end data. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
 
-```console
+```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2
 SAMPLE_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
 SAMPLE_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz
@@ -49,7 +49,7 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-core/hic --input samplesheet.csv --outdir <OUTDIR> --genome GRCh37 -profile docker
+nextflow run nf-core/hic --input ./samplesheet.csv --outdir ./results --genome GRCh37 -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile.
@@ -68,8 +68,11 @@ If you wish to repeatedly use the same parameters for multiple runs, rather than
 
 Pipeline settings can be provided in a `yaml` or `json` file via `-params-file <file>`.
 
-> ⚠️ Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources), other infrastructural tweaks (such as output directories), or module arguments (args).
-> The above pipeline run specified with a params file in yaml format:
+:::warning
+Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources), other infrastructural tweaks (such as output directories), or module arguments (args).
+:::
+
+The above pipeline run specified with a params file in yaml format:
 
 ```bash
 nextflow run nf-core/hic -profile docker -params-file params.yaml
@@ -81,7 +84,6 @@ with `params.yaml` containing:
 input: './samplesheet.csv'
 outdir: './results/'
 genome: 'GRCh37'
-input: 'data'
 <...>
 ```
 
@@ -105,12 +107,15 @@ This version number will be logged in reports when you run the pipeline, so that
 
 To further assist in reproducbility, you can use share and re-use [parameter files](#running-the-pipeline) to repeat pipeline runs with the same settings without having to write out a command with every single parameter.
 
-> 💡 If you wish to share such profile (such as upload as supplementary material for academic publications), make sure to NOT include cluster specific paths to files, nor institutional specific profiles.
+:::tip
+If you wish to share such profile (such as upload as supplementary material for academic publications), make sure to NOT include cluster specific paths to files, nor institutional specific profiles.
+:::
 
 ## Core Nextflow arguments
 
-> **NB:** These options are part of Nextflow and use a _single_ hyphen
-> (pipeline parameters use a double-hyphen).
+:::note
+These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
+:::
 
 ### `-profile`
 
@@ -119,8 +124,9 @@ configuration presets for different compute environments.
 
 Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud, Apptainer, Conda) - see below.
 
-> We highly recommend the use of Docker or Singularity containers for full
-> pipeline reproducibility, however when this is not possible, Conda is also supported.
+:::info
+We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
+:::
 
 The pipeline also dynamically loads configurations from
 [https://github.com/nf-core/configs](https://github.com/nf-core/configs)
@@ -152,6 +158,8 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
   - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
 - `apptainer`
   - A generic configuration profile to be used with [Apptainer](https://apptainer.org/)
+- `wave`
+  - A generic configuration profile to enable [Wave](https://seqera.io/wave/) containers. Use together with one of the above (requires Nextflow ` 24.03.0-edge` or later).
 - `conda`
   - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter, Charliecloud, or Apptainer.
 
@@ -243,15 +251,15 @@ Note that by default, no filters are applied on DNA and restriction fragment siz
 nextflow run main.nf --input './*_R{1,2}.fastq.gz' --genome 'mm10' --digestion 'dnpii'
 ```
 
-### DNase Hi-C protocol
+### DNase Hi-C / Micro-C protocol
 
-Here is an command line example for DNase protocol.
+Here is an command line example for DNase or Micro-C protocol.
 Alignment will be performed on the `mm10` genome with default paramters.
 Multi-hits will not be considered and duplicates will be removed.
 Contacts involving fragments separated by less than 1000bp will be discarded.
 
 ```bash
-nextflow run main.nf --input './*_R{1,2}.fastq.gz' --genome 'mm10' --dnase --min_cis 1000
+nextflow run main.nf --input './*_R{1,2}.fastq.gz' --genome 'mm10' --no_digestion --min_cis 1000
 ```
 
 ## Inputs
@@ -448,9 +456,9 @@ Default: 'AAGCTAGCTT'
 
 Exemple of the ARIMA kit: GATCGATC,GANTGATC,GANTANTC,GATCANTC
 
-### DNAse Hi-C
+### DNAse/Micro-C
 
-#### `--dnase`
+#### `--no_digestion`
 
 In DNAse Hi-C mode, all options related to digestion Hi-C
 (see previous section) are ignored.
@@ -458,7 +466,7 @@ In this case, it is highly recommended to use the `--min_cis_dist` parameter
 to remove spurious ligation products.
 
 ```bash
---dnase
+--no_digestion
 ```
 
 ### HiC-pro processing
@@ -502,7 +510,7 @@ Default: '0' - no filter
 #### `--min_cis_dist`
 
 Filter short range contact below the specified distance.
-Mainly useful for DNase Hi-C. Default: '0'
+Mainly useful for DNAse/Micro-C. Default: '0'
 
 ```bash
 --min_cis_dist '[numeric]'
@@ -615,7 +623,12 @@ Several resolutions can be specified (comma-separeted). Default: '250000'
 
 ### Compartment calling
 
-Call open/close compartments for each chromosome, using the `cooltools` command.
+Call open/close compartments for each chromosome, using the `cooltools` or `calder2` tools.
+
+#### `--compartments_caller`
+
+Compartments calling can be performed with either `cooltools`
+or `calder2`. Multiple choices are possible (comma-separated).
 
 #### `--res_compartments`
 

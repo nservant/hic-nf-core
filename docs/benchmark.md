@@ -22,7 +22,7 @@ nextflow run nf-core-hic/main.nf \
   --outdir '/tmp/results_test_pairtools/'
 ```
 
-The idea here was just to have a look at the final list of selected (and unselected) 
+The idea here was just to have a look at the final list of selected (and unselected)
 read pairs classified as valid interactions (or spurious interaction products)
 
 Here is a quick summary statistics ;
@@ -46,9 +46,9 @@ Here is a quick summary statistics ;
 # Filtered by Pairtools only = 4686 (11.58%)
 ```
 
-Overall, we can see that **70%** of valid interactions are called by both `HiC-Pro` and `Pairtools`.  
+Overall, we can see that **70%** of valid interactions are called by both `HiC-Pro` and `Pairtools`.
 Regarding the 30% of read pairs which are different between the two tools, we can see that a large
-majority (>75%) are due to differences in the read mapping (`bowtie2` versus `bwa-mem`).  
+majority (>75%) are due to differences in the read mapping (`bowtie2` versus `bwa-mem`).
 
 The few other differences can be at least partly explain by differences in the read pairs selection such as how a read is assigned
 to a restriction fragments, etc.
@@ -68,7 +68,7 @@ nextflow run nf-core-hic/main.nf \
   --res_compartments '500000,250000' \
   --res_tads '40000,20000' \
   --outdir './results_SRX2636669_hicpro/' \
-  -profile singularity 
+  -profile singularity
 ```
 
 or `bwa-mem/pairtools` ;
@@ -107,20 +107,14 @@ As before, small statistics were computed to compare the list of valid (and not 
 # Filtered by Pairtools only = 6386317 (10.65%)
 ```
 
-Almost **80%** of valid interactions are called in common by `HiC-Pro` and `pairtools`.  
+Almost **80%** of valid interactions are called in common by `HiC-Pro` and `pairtools`.
 As previously observed, most of the differences observed between the two tools are
 explained by distinct mapping procedures.
 
-
 Finally, we generated the contact maps around a specific regions on the X chromosome
-using the `cool` files and the TADs calling generated with both tools.  
+using the `cool` files and the TADs calling generated with both tools.
 **No difference is observed at the contact map level.**
 
 ![X Inactivation Center - HiC-Pro processing](./images/SRX2636669_hicpro_pygentracks.png)
 
 ![X Inactivation Center - Bwa-mem / pairtools](./images/SRX2636669_pairtools_pygentracks.png)
-
-
-
-
-

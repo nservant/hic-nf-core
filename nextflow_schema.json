@@ -15,9 +15,10 @@
                 "input": {
                     "type": "string",
                     "format": "file-path",
+                    "exists": true,
+                    "schema": "assets/schema_input.json",
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$",
-                    "schema": "assets/schema_input.json",
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
                     "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. See [usage docs](https://nf-co.re/hic/usage#samplesheet-input).",
                     "fa_icon": "fas fa-file-csv"
@@ -57,19 +58,12 @@
                 "fasta": {
                     "type": "string",
                     "format": "file-path",
+                    "exists": true,
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.fn?s?a(sta)?(\\.gz)?$",
                     "description": "Path to FASTA genome file.",
                     "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have an index available this will be generated for you automatically. Combine with `--save_reference` to save the mapping index for future runs.",
                     "fa_icon": "far fa-file-code"
-                },
-                "igenomes_base": {
-                    "type": "string",
-                    "format": "directory-path",
-                    "description": "Directory / URL base for iGenomes references.",
-                    "default": "s3://ngi-igenomes/igenomes",
-                    "fa_icon": "fas fa-cloud-download-alt",
-                    "hidden": true
                 },
                 "igenomes_ignore": {
                     "type": "boolean",
@@ -87,10 +81,10 @@
                     "type": "string",
                     "description": "Full path to directory containing Bwa-mem index",
                     "fa_icon": "far fa-file-alt"
-               }
+                }
             }
         },
-        "hic_processing":{
+        "hic_processing": {
             "title": "Hi-C processing",
             "type": "object",
             "description": "Define the Hi-C processing subworkflow to use to extract the valid pairs from raw data",
@@ -100,7 +94,7 @@
                     "type": "string",
                     "description": "Hi-C processing method",
                     "default": "hicpro",
-                    "enum": ["hicpro", "pairtools"]                                                                                                                                 
+                    "enum": ["hicpro", "pairtools"]
                 }
             }
         },
@@ -148,18 +142,18 @@
             }
         },
         "no_digestion_hi_c": {
-            "title": "DNAse Hi-C",
+            "title": "Micro-C/DNAse Hi-C",
             "type": "object",
-            "description": "Parameters for protocols based on DNAse digestion",
+            "description": "Parameters for protocols which are not based on restriction enzymes",
             "default": "",
             "properties": {
-                "dnase": {
+                "no_digestion": {
                     "type": "boolean",
-                    "description": "For Hi-C protocols which are not based on enzyme digestion such as DNase Hi-C"
+                    "description": "For Hi-C protocols which are not based on enzyme digestion such as DNAse Hi-C or Micro-C"
                 },
                 "min_cis_dist": {
                     "type": "integer",
-                    "description": "Minimum distance between loci to consider. Useful for --dnase mode to remove spurious ligation products. Only values > 0 are considered"
+                    "description": "Minimum distance between loci to consider. Useful for --no-digestion mode to remove spurious ligation products. Only values > 0 are considered"
                 }
             }
         },
@@ -187,17 +181,17 @@
                 },
                 "bwt2_opts_end2end": {
                     "type": "string",
-                    "default": "'--very-sensitive --end-to-end --reorder'",
+                    "default": "--very-sensitive --end-to-end --reorder",
                     "description": "Option for HiC-Pro end-to-end bowtie mapping"
                 },
                 "bwt2_opts_trimmed": {
                     "type": "string",
-                    "default": "'--very-sensitive --end-to-end --reorder'",
+                    "default": "--very-sensitive --end-to-end --reorder",
                     "description": "Option for HiC-Pro trimmed reads mapping"
                 },
                 "bwa_opts": {
                     "type": "string",
-                    "default": "'-5SP -T0'",
+                    "default": "-5SP -T0",
                     "description": "Option for Bwa-mem mapping"
                 },
                 "save_aligned_intermediates": {
@@ -240,7 +234,7 @@
                 "pairtools_parse_opts": {
                     "type": "string",
                     "description": "Update 'pairtools parse' options",
-                    "default": "--walks-policy 5unique" 
+                    "default": "--walks-policy 5unique"
                 },
                 "save_interaction_bam": {
                     "type": "boolean",
@@ -262,7 +256,7 @@
                 "bin_size": {
                     "type": "string",
                     "pattern": "^(\\d+)(,\\d+)*$",
-                    "default": "1000000,500000",
+                    "default": "1000000",
                     "description": "Resolution to build the maps (comma separated)"
                 },
                 "hicpro_maps": {
@@ -288,9 +282,13 @@
                     "default": 100,
                     "description": "Maximum number of iteraction for HiC-Pro ICE normalization"
                 },
+                "balancing_opts": {
+                    "type": "string",
+                    "description": "Update 'cooler balance' options",
+                    "default": "--force"
+                },
                 "res_zoomify": {
                     "type": "string",
-                    "default": "5000",
                     "description": "Maximum resolution to build mcool file"
                 },
                 "save_raw_maps": {
@@ -308,7 +306,7 @@
                 "res_dist_decay": {
                     "type": "string",
                     "pattern": "^(\\d+)(,\\d+)*$",
-                    "default": "1000000",
+                    "default": "250000",
                     "description": "Resolution to build count/distance plot"
                 },
                 "tads_caller": {
@@ -316,10 +314,15 @@
                     "default": "insulation",
                     "description": "Define methods for TADs calling"
                 },
+                "compartments_caller": {
+                    "type": "string",
+                    "default": "cooltools",
+                    "description": "Define methods for compartments calling"
+                },
                 "res_tads": {
                     "type": "string",
                     "pattern": "^(\\d+)(,\\d+)*$",
-                    "default": "40000,20000",
+                    "default": "40000",
                     "description": "Resolution to run TADs callers (comma separated)"
                 },
                 "res_compartments": {
@@ -443,7 +446,7 @@
                     "description": "Maximum amount of time that can be requested for any single job.",
                     "default": "240.h",
                     "fa_icon": "far fa-clock",
-                    "pattern": "^(\\d+\\.?\\s*(s|m|h|day)\\s*)+$",
+                    "pattern": "^(\\d+\\.?\\s*(s|m|h|d|day)\\s*)+$",
                     "hidden": true,
                     "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`"
                 }
@@ -514,6 +517,7 @@
                 },
                 "multiqc_config": {
                     "type": "string",
+                    "format": "file-path",
                     "description": "Custom config file to supply to MultiQC.",
                     "fa_icon": "fas fa-cog",
                     "hidden": true
@@ -529,13 +533,6 @@
                     "description": "Custom MultiQC yaml file containing HTML including a methods description.",
                     "fa_icon": "fas fa-cog"
                 },
-                "tracedir": {
-                    "type": "string",
-                    "description": "Directory to keep pipeline Nextflow logs and reports.",
-                    "default": "${params.outdir}/pipeline_info",
-                    "fa_icon": "fas fa-cogs",
-                    "hidden": true
-                },
                 "validate_params": {
                     "type": "boolean",
                     "description": "Boolean whether to validate parameters against the schema at runtime",
@@ -543,12 +540,33 @@
                     "fa_icon": "fas fa-check-square",
                     "hidden": true
                 },
-                "show_hidden_params": {
+                "validationShowHiddenParams": {
                     "type": "boolean",
                     "fa_icon": "far fa-eye-slash",
                     "description": "Show all params when using `--help`",
                     "hidden": true,
                     "help_text": "By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters."
+                },
+                "validationFailUnrecognisedParams": {
+                    "type": "boolean",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "Validation of parameters fails when an unrecognised parameter is found.",
+                    "hidden": true,
+                    "help_text": "By default, when an unrecognised parameter is found, it returns a warinig."
+                },
+                "validationLenientMode": {
+                    "type": "boolean",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "Validation of parameters in lenient more.",
+                    "hidden": true,
+                    "help_text": "Allows string values that are parseable as numbers or booleans. For further information see [JSONSchema docs](https://github.com/everit-org/json-schema#lenient-mode)."
+                },
+                "pipelines_testdata_base_path": {
+                    "type": "string",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "Base URL or local path to location of pipeline test dataset files",
+                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
+                    "hidden": true
                 }
             }
         }

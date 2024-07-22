@@ -7,12 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added`
 
+- Parameter `--dnase`is now replaced by `--no_digestion`
+
+- Add CALDER2 compartments calling (see '--compartments_caller' option)
+
+- Add new '--balancing_opts' to update `cooler balance` arguments (#193)
+
 - New subworkflow based on `pairtools` to detect valid pairs. The user
-can now choose between `--processing hicpro` (default) or `--processing pairtools`
+  can now choose between `--processing hicpro` (default) or `--processing pairtools`
 
 - Default mapping options with `HiC-Pro` has been updated to give closer results in comparison
-with `BWA-mem/pairtools`
+  with `BWA-mem/pairtools`
 
+- [#194](https://github.com/nf-core/hic/pull/194) - Update pipeline template to [nf-core/tools 2.13.1](https://github.com/nf-core/tools/releases/tag/2.13.1)
+
+- [#196](https://github.com/nf-core/hic/pull/196) - Add nf-test
+
+### `Removed`
+
+- Removed public_aws_ecr profile
 
 ## v2.1.0 - 2023-06-01
 
@@ -21,6 +34,8 @@ with `BWA-mem/pairtools`
 - Added public_aws_ecr profile for using containers stored on ECR.
 
 ### `Fixed`
+
+- cooltools version in COOLTOOLS_INSULATION not parsed correctly
 
 ## v2.0.0 - 2023-01-12
 
